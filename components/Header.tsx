@@ -64,8 +64,9 @@ export const Header = ({
 
   const HeaderContent = (
     <View style={[styles.gradientHeader, { backgroundColor: headerColor }]}>
-      <Text style={styles.emoji}>{emoji}</Text>
       <Text style={styles.title}>{title}</Text>
+      <Text style={styles.emoji}>{emoji}</Text>
+
       <Text
         style={[
           styles.subtitle,
@@ -154,6 +155,7 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: 32,
     marginBottom: 10,
+    marginTop: 10,
   },
   title: {
     fontSize: 26,

@@ -17,16 +17,16 @@ import { UndoSnackbar } from "../../components/UndoSnackbar";
 import { useHeaderAnimation } from "../../hooks/useHeaderAnimation";
 import { getSportColor } from "../../constants/sportColors";
 import { Venue } from "../../types/venue";
-import { FavoriteCard } from "../../components/FavoriteCard";
+import { FavouriteCard } from "../../components/FavouriteCard";
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
-const FAVORITES_KEY = "favorites";
+const FAVOURITES_KEY = "favourites";
 
 
 
-export default function FavoriteScreen() {
+export default function FavouriteScreen() {
   const [venues, setVenues] = useState<Venue[]>([]);
-  const [favoriteVenues, setFavoriteVenues] = useState<Venue[]>([]);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favouriteVenues, setFavouriteVenues] = useState<Venue[]>([]);
+  const [favourites, setFavourites] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<{
@@ -39,15 +39,15 @@ export default function FavoriteScreen() {
     id: number;
     name: string;
   } | null>(null);
-  const [previousFavorites, setPreviousFavorites] = useState<number[]>([]);
+  const [previousFavourites, setPreviousFavourites] = useState<number[]>([]);
 
   const undoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { fadeAnim, slideAnim } = useHeaderAnimation();
 
-  // Refresh favorites when screen comes into focus
+  // Refresh favourites when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      loadFavorites();
+      loadFavourites();
     }, []),
   );
 
@@ -56,12 +56,12 @@ export default function FavoriteScreen() {
   }, []);
 
   useEffect(() => {
-    if (venues.length > 0 && favorites.length > 0) {
-      updateFavoriteVenues();
-    } else if (favorites.length === 0) {
-      setFavoriteVenues([]);
+    if (venues.length > 0 && favourites.length > 0) {
+      updateFavouriteVenues();
+    } else if (favourites.length === 0) {
+      setFavouriteVenues([]);
     }
-  }, [favorites, venues]);
+  }, [favourites, venues]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -84,38 +84,38 @@ export default function FavoriteScreen() {
     }
   };
 
-  const loadFavorites = async () => {
+  const loadFavourites = async () => {
     try {
-      const value = await SecureStore.getItemAsync(FAVORITES_KEY);
+      const value = await SecureStore.getItemAsync(FAVOURITES_KEY);
       const parsed = value ? JSON.parse(value) : [];
-      setFavorites(parsed);
+      setFavourites(parsed);
     } catch (error) {
-      console.log("Failed to load favorites", error);
+      console.log("Failed to load favourites", error);
     }
   };
 
-  const saveFavorites = async (updatedFavorites: number[]) => {
+  const saveFavourites = async (updatedFavourites: number[]) => {
     try {
       await SecureStore.setItemAsync(
-        FAVORITES_KEY,
-        JSON.stringify(updatedFavorites),
+        FAVOURITES_KEY,
+        JSON.stringify(updatedFavourites),
       );
     } catch (error) {
-      console.log("Failed to save favorites");
+      console.log("Failed to save favourites");
     }
   };
 
-  const updateFavoriteVenues = () => {
-    const favVenues = favorites
+  const updateFavouriteVenues = () => {
+    const favVenues = favourites
       .map((id) => venues.find((venue) => venue.id === id))
       .filter((venue): venue is Venue => venue !== undefined)
       .reverse();
-    setFavoriteVenues(favVenues);
+    setFavouriteVenues(favVenues);
   };
 
-  const removeLastFavorite = () => {
-    if (favorites.length === 0) return;
-    const lastAddedId = favorites[favorites.length - 1];
+  const removeLastFavourite = () => {
+    if (favourites.length === 0) return;
+    const lastAddedId = favourites[favourites.length - 1];
     const lastAddedVenue = venues.find((v) => v.id === lastAddedId);
     if (lastAddedVenue) {
       setSelectedVenue({ id: lastAddedId, name: lastAddedVenue.name });
@@ -123,7 +123,7 @@ export default function FavoriteScreen() {
     }
   };
 
-  const removeFromFavorites = (venueId: number, venueName: string) => {
+  const removeFromFavourites = (venueId: number, venueName: string) => {
     setSelectedVenue({ id: venueId, name: venueName });
     setConfirmationVisible(true);
   };
@@ -134,14 +134,14 @@ export default function FavoriteScreen() {
       clearTimeout(undoTimeoutRef.current);
     }
     setRemovingId(selectedVenue.id);
-    setPreviousFavorites([...favorites]);
+    setPreviousFavourites([...favourites]);
     setLastRemovedVenue(selectedVenue);
     setTimeout(() => {
-      const updatedFavorites = favorites.filter(
+      const updatedFavourites = favourites.filter(
         (id) => id !== selectedVenue.id,
       );
-      setFavorites(updatedFavorites);
-      saveFavorites(updatedFavorites);
+      setFavourites(updatedFavourites);
+      saveFavourites(updatedFavourites);
       setConfirmationVisible(false);
       setSelectedVenue(null);
       setRemovingId(null);
@@ -149,7 +149,7 @@ export default function FavoriteScreen() {
       undoTimeoutRef.current = setTimeout(() => {
         setUndoVisible(false);
         setLastRemovedVenue(null);
-        setPreviousFavorites([]);
+        setPreviousFavourites([]);
       }, 5000);
     }, 300);
   };
@@ -163,11 +163,11 @@ export default function FavoriteScreen() {
     if (undoTimeoutRef.current) {
       clearTimeout(undoTimeoutRef.current);
     }
-    setFavorites(previousFavorites);
-    saveFavorites(previousFavorites);
+    setFavourites(previousFavourites);
+    saveFavourites(previousFavourites);
     setUndoVisible(false);
     setLastRemovedVenue(null);
-    setPreviousFavorites([]);
+    setPreviousFavourites([]);
   };
 
   if (loading) {
@@ -176,7 +176,7 @@ export default function FavoriteScreen() {
         <StatusBar barStyle="light-content" backgroundColor="#DC2626" />
         <Header
           title="My Favorite Venues"
-          subtitle={`${favoriteVenues.length} ${favoriteVenues.length === 1 ? "venue" : "venues"} saved`}
+          subtitle={`${favouriteVenues.length} ${favouriteVenues.length === 1 ? "venue" : "venues"} saved`}
           emoji="❤️"
           headerColor="#DC2626"
           fadeAnim={fadeAnim}
@@ -184,7 +184,7 @@ export default function FavoriteScreen() {
         />
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#EF4444" />
-          <Text style={styles.loadingText}>Loading favorites...</Text>
+          <Text style={styles.loadingText}>Loading favourites...</Text>
         </View>
       </SafeAreaView>
     );
@@ -194,13 +194,13 @@ export default function FavoriteScreen() {
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor="#DC2626" />
       <Header
-        title="My Favorite Venues"
-        subtitle={`${favoriteVenues.length} ${favoriteVenues.length === 1 ? "venue" : "venues"} saved`}
+        title="My Favourite Venues"
+        subtitle={`${favouriteVenues.length} ${favouriteVenues.length === 1 ? "venue" : "venues"} saved`}
         emoji="❤️"
         headerColor="#720a0a"
         additionalButton={
-          favoriteVenues.length > 0
-            ? { text: "🗑️ Remove Last Added", onPress: removeLastFavorite }
+            favouriteVenues.length > 0
+            ? { text: " Remove last added venue", onPress: removeLastFavourite }
             : undefined
         }
         fadeAnim={fadeAnim}
@@ -209,24 +209,24 @@ export default function FavoriteScreen() {
 
       <View style={styles.contentWrapper}>
         <FlatList
-          data={favoriteVenues}
+          data={favouriteVenues}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyEmoji}>💔</Text>
-              <Text style={styles.emptyText}>No favorites yet</Text>
+              <Text style={styles.emptyText}>No favourites yet</Text>
               <Text style={styles.emptySubtext}>
-                Add venues to favorites from the home screen
+                Add venues to favourites from the home screen
               </Text>
             </View>
           }
           renderItem={({ item, index }) => (
-            <FavoriteCard
+            <FavouriteCard
               item={item}
               index={index}
-              onRemove={removeFromFavorites}
+              onRemove={removeFromFavourites}
               getSportColor={getSportColor}
               isRemoving={removingId === item.id}
             />

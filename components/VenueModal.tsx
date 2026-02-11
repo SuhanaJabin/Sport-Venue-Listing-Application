@@ -20,8 +20,8 @@ export const VenueModal = ({
   visible,
   venue,
   onClose,
-  isFavorite,
-  onToggleFavorite,
+  isFavourite,
+  onToggleFavourite,
   getSportColor,
 }: VenueModalProps) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -153,11 +153,11 @@ export const VenueModal = ({
               {/* Favorite Button */}
               <TouchableOpacity
                 style={styles.modalFavoriteButton}
-                onPress={() => onToggleFavorite(venue.id)}
+                onPress={() => onToggleFavourite(venue.id)}
                 activeOpacity={0.8}
               >
                 <Text style={styles.modalFavoriteIcon}>
-                  {isFavorite ? "❤️" : "🤍"}
+                  {isFavourite ? "❤️" : "🤍"}
                 </Text>
               </TouchableOpacity>
             </View>

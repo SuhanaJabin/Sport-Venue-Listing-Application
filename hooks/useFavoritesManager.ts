@@ -1,41 +1,41 @@
 import * as SecureStore from "expo-secure-store";
 
-const FAVORITES_KEY = "favorites";
+const FAVOURITES_KEY = "favourites";
 
-export const useFavoritesManager = (initialFavorites: number[] = []) => {
-  const loadFavorites = async (): Promise<number[]> => {
+export const useFavouritesManager = (initialFavourites: number[] = []) => {
+  const loadFavourites = async (): Promise<number[]> => {
     try {
-      const value = await SecureStore.getItemAsync(FAVORITES_KEY);
+      const value = await SecureStore.getItemAsync(FAVOURITES_KEY);
       return value ? JSON.parse(value) : [];
     } catch (error) {
-      console.log("Failed to load favorites", error);
+      console.log("Failed to load favourites", error);
       return [];
     }
   };
 
-  const saveFavorites = async (data: number[]): Promise<void> => {
+  const saveFavourites = async (data: number[]): Promise<void> => {
     try {
-      await SecureStore.setItemAsync(FAVORITES_KEY, JSON.stringify(data));
+      await SecureStore.setItemAsync(FAVOURITES_KEY, JSON.stringify(data));
     } catch (error) {
-      console.log("Failed to save favorites", error);
+      console.log("Failed to save favourites", error);
     }
   };
 
-  const toggleFavorite = (venueId: number, favorites: number[]): number[] => {
-    return favorites.includes(venueId)
-      ? favorites.filter((id) => id !== venueId)
-      : [...favorites, venueId];
+  const toggleFavourite = (venueId: number, favourites: number[]): number[] => {
+    return favourites.includes(venueId)
+      ? favourites.filter((id) => id !== venueId)
+      : [...favourites, venueId];
   };
 
-  const isFavorite = (venueId: number, favorites: number[]): boolean => {
-    return favorites.includes(venueId);
+  const isFavourite = (venueId: number, favourites: number[]): boolean => {
+    return favourites.includes(venueId);
   };
 
   return {
-    loadFavorites,
-    saveFavorites,
-    toggleFavorite,
-    isFavorite,
-    FAVORITES_KEY,
+    loadFavourites,
+    saveFavourites,
+    toggleFavourite,
+    isFavourite,
+    FAVOURITES_KEY,
   };
 };

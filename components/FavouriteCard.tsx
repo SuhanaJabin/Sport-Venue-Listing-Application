@@ -9,16 +9,16 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { FavoriteCardProps } from '../types/venue';
+import { FavouriteCardProps } from '../types/venue';
 
 
-export const FavoriteCard = ({
+export const FavouriteCard = ({
   item,
   index,
   onRemove,
   getSportColor,
   isRemoving,
-}: FavoriteCardProps) => {
+}: FavouriteCardProps) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const trashAnimatedValue = useRef(new Animated.Value(1)).current;
@@ -122,7 +122,7 @@ export const FavoriteCard = ({
           <View style={styles.sportsWrapper}>
             <Text style={styles.sportsLabel}>Sports:</Text>
             <View style={styles.sportsTags}>
-              {item.sports.map((sport, sportIndex) => {
+              {item.sports.map((sport: string, sportIndex: number) => {
                 const colors = getSportColor(sport);
                 return (
                   <View

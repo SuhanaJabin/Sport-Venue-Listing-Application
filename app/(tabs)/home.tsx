@@ -16,14 +16,14 @@ import { VenueModal } from "../../components/VenueModal";
 import { Header } from "../../components/Header";
 import { getSportColor } from "../../constants/sportColors";
 import { useHeaderAnimation } from "../../hooks/useHeaderAnimation";
-import { useFavoritesManager } from "../../hooks/useFavoritesManager";
+import { useFavouritesManager } from "../../hooks/useFavoritesManager";
 import { quickSort, filterVenues } from "../../utils/venueSearch";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 export default function HomeScreen() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favourites, setFavourites] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "none">("none");
@@ -32,19 +32,19 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
 
   const { fadeAnim, slideAnim } = useHeaderAnimation();
-  const { loadFavorites, saveFavorites, toggleFavorite, isFavorite } =
-    useFavoritesManager();
+  const { loadFavourites, saveFavourites, toggleFavourite, isFavourite } =
+    useFavouritesManager();
 
-  // Refresh favorites when screen comes into focus
+  // Refresh favourites when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      loadFavorites();
+      loadFavourites();
     }, []),
   );
 
   useEffect(() => {
     fetchVenues();
-    loadFavorites();
+    loadFavourites();
   }, []);
 
   const fetchVenues = async () => {
@@ -60,9 +60,9 @@ export default function HomeScreen() {
     }
   };
 
-  const loadFavoritesData = async () => {
-    const loaded = await loadFavorites();
-    setFavorites(loaded);
+  const loadFavouritesData = async () => {
+    const loaded = await loadFavourites();
+    setFavourites(loaded);
   };
 
   // Open venue details modal
@@ -172,7 +172,7 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
         <Header
-          title="Venue Finder"
+          title="VenueGo"
           subtitle="Sport venues, mapped for you"
           emoji="⚽🏏🏀"
           headerColor="#1E40AF"
@@ -191,7 +191,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
       <Header
-        title="Venue Finder"
+        title="VenueGo"
         subtitle="Sport venues, mapped for you"
         emoji="⚽🏏🏀"
         searchQuery={searchQuery}
@@ -225,11 +225,11 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <VenueCard
               item={item}
-              isFavorite={isFavorite(item.id, favorites)}
-              onToggleFavorite={() => {
-                const updated = toggleFavorite(item.id, favorites);
-                setFavorites(updated);
-                saveFavorites(updated);
+              isFavourite={isFavourite(item.id, favourites)}
+              onToggleFavourite={() => {
+                const updated = toggleFavourite(item.id, favourites);
+                setFavourites(updated);
+                saveFavourites(updated);
               }}
               onPress={openVenueDetails}
               getSportColor={getSportColor}
@@ -242,14 +242,14 @@ export default function HomeScreen() {
         visible={modalVisible}
         venue={selectedVenue}
         onClose={closeVenueDetails}
-        isFavorite={
-          selectedVenue ? isFavorite(selectedVenue.id, favorites) : false
+        isFavourite={
+          selectedVenue ? isFavourite(selectedVenue.id, favourites) : false
         }
-        onToggleFavorite={() => {
+        onToggleFavourite={() => {
           if (selectedVenue) {
-            const updated = toggleFavorite(selectedVenue.id, favorites);
-            setFavorites(updated);
-            saveFavorites(updated);
+            const updated = toggleFavourite(selectedVenue.id, favourites);
+            setFavourites(updated);
+            saveFavourites(updated);
           }
         }}
         getSportColor={getSportColor}

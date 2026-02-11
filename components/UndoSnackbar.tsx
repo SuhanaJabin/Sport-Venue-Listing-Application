@@ -25,6 +25,10 @@ export const UndoSnackbar = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [shouldRender, setShouldRender] = useState(false);
 
+  const truncateName = (name: string, maxLength: number = 10) => {
+    return name.length > maxLength ? name.substring(0, maxLength) + "..." : name;
+  };
+
   useEffect(() => {
     if (visible) {
       setShouldRender(true);
@@ -73,7 +77,7 @@ export const UndoSnackbar = ({
       <View style={styles.undoContent}>
         <Ionicons name="checkmark-circle" size={22} color="#10B981" />
         <Text style={styles.undoText} numberOfLines={1}>
-          <Text style={styles.undoVenueName}>{venueName}</Text> removed
+          <Text style={styles.undoVenueName}>{truncateName(venueName)} venue</Text> removed
         </Text>
       </View>
       <TouchableOpacity
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 16,
     right: 16,
-    backgroundColor: "#DC2626",
+    backgroundColor: "#830909",
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 10,
     borderWidth: 2,
-    borderColor: "#EF4444",
+    borderColor: "#830909",
   },
   undoContent: {
     flexDirection: "row",

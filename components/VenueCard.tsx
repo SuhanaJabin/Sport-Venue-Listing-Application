@@ -14,8 +14,8 @@ const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_IMAGE_BASE_URL!;
 
 export const VenueCard = ({
   item,
-  isFavorite,
-  onToggleFavorite,
+  isFavourite,
+  onToggleFavourite,
   onPress,
   getSportColor,
 }: VenueCardProps) => {
@@ -57,7 +57,7 @@ export const VenueCard = ({
       }),
     ]).start();
 
-    onToggleFavorite(item.id);
+    onToggleFavourite(item.id);
   };
 
   const imageUrl = `${IMAGE_BASE_URL}${item.logo}`;
@@ -108,7 +108,7 @@ export const VenueCard = ({
                     },
                   ]}
                 >
-                  {isFavorite ? "❤️" : "🤍"}
+                  {isFavourite ? "❤️" : "🤍"}
                 </Animated.Text>
               </TouchableOpacity>
             </View>

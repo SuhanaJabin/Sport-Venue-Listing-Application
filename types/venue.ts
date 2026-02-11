@@ -14,8 +14,8 @@ export type Venue = {
 // Venue Card Component with Animation
 export type VenueCardProps = {
   item: Venue;
-  isFavorite: boolean;
-  onToggleFavorite: (venueId: number) => void;
+  isFavourite: boolean;
+  onToggleFavourite: (venueId: number) => void;
   onPress: (venue: Venue) => void;
   getSportColor: (sport: string) => {
     bg: string;
@@ -28,8 +28,8 @@ export type VenueModalProps = {
   visible: boolean;
   venue: Venue | null;
   onClose: () => void;
-  isFavorite: boolean;
-  onToggleFavorite: (venueId: number) => void;
+  isFavourite: boolean;
+  onToggleFavourite: (venueId: number) => void;
   getSportColor: (sport: string) => {
     bg: string;
     border: string;
@@ -38,8 +38,8 @@ export type VenueModalProps = {
 };
 
 
-// Favorite Card Component with Animation
-export type FavoriteCardProps = {
+// Favourite Card Component with Animation
+export type FavouriteCardProps = {
   item: Venue;
   index: number;
   onRemove: (venueId: number, venueName: string) => void;

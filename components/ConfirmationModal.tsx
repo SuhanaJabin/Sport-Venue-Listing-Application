@@ -28,7 +28,7 @@ export const ConfirmationModal = ({
   venueName,
   onConfirm,
   onCancel,
-  title = "Remove Favorite?",
+  title = "Remove favourite?",
   message = "Are you sure you want to remove",
 }: ConfirmationModalProps) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -96,7 +96,7 @@ export const ConfirmationModal = ({
           ]}
         >
           <View style={styles.confirmationIcon}>
-            <Ionicons name="trash-outline" size={48} color="#DC2626" />
+            <Ionicons name="trash-outline" size={40} color="#DC2626" />
           </View>
 
           <Text style={styles.confirmationTitle}>{title}</Text>
@@ -104,7 +104,7 @@ export const ConfirmationModal = ({
           <Text style={styles.confirmationMessage}>
             {message}{" "}
             <Text style={styles.confirmationVenueName}>"{venueName}"</Text> from
-            your favorites?
+            your favourites?
           </Text>
 
           <View style={styles.confirmationButtons}>
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     borderColor: "#FCA5A5",
   },
   confirmationTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "700",
     color: "#111827",
     textAlign: "center",
