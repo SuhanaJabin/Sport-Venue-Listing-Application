@@ -21,8 +21,6 @@ import { FavouriteCard } from "../../components/FavouriteCard";
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 const FAVOURITES_KEY = "favourites";
 
-
-
 export default function FavouriteScreen() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [favouriteVenues, setFavouriteVenues] = useState<Venue[]>([]);
@@ -199,7 +197,7 @@ export default function FavouriteScreen() {
         emoji="❤️"
         headerColor="#720a0a"
         additionalButton={
-            favouriteVenues.length > 0
+          favouriteVenues.length > 0
             ? { text: " Remove last added venue", onPress: removeLastFavourite }
             : undefined
         }
@@ -297,5 +295,4 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: Platform.OS === "ios" ? "Avenir" : "sans-serif",
   },
-
 });

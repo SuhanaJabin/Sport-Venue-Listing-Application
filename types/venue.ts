@@ -37,7 +37,6 @@ export type VenueModalProps = {
   };
 };
 
-
 // Favourite Card Component with Animation
 export type FavouriteCardProps = {
   item: Venue;

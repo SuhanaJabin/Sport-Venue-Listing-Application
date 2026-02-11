@@ -26,7 +26,9 @@ export const UndoSnackbar = ({
   const [shouldRender, setShouldRender] = useState(false);
 
   const truncateName = (name: string, maxLength: number = 10) => {
-    return name.length > maxLength ? name.substring(0, maxLength) + "..." : name;
+    return name.length > maxLength
+      ? name.substring(0, maxLength) + "..."
+      : name;
   };
 
   useEffect(() => {
@@ -77,7 +79,10 @@ export const UndoSnackbar = ({
       <View style={styles.undoContent}>
         <Ionicons name="checkmark-circle" size={22} color="#10B981" />
         <Text style={styles.undoText} numberOfLines={1}>
-          <Text style={styles.undoVenueName}>{truncateName(venueName)} venue</Text> removed
+          <Text style={styles.undoVenueName}>
+            {truncateName(venueName)} venue
+          </Text>{" "}
+          removed
         </Text>
       </View>
       <TouchableOpacity
