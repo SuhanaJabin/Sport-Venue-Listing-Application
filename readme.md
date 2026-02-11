@@ -1,4 +1,4 @@
-# 📍 PlaySpot – Sports Venue Listing App
+# 📍 Venue Finder – Sports Venue Listing App
 
 A React Native (Expo) mobile app for listing nearby sports venues with custom Quick Sort algorithm, search, and Stack-based favorites management.
 
