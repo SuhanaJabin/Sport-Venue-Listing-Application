@@ -197,7 +197,7 @@ export default function FavoriteScreen() {
         title="My Favorite Venues"
         subtitle={`${favoriteVenues.length} ${favoriteVenues.length === 1 ? "venue" : "venues"} saved`}
         emoji="❤️"
-        headerColor="#DC2626"
+        headerColor="#720a0a"
         additionalButton={
           favoriteVenues.length > 0
             ? { text: "🗑️ Remove Last Added", onPress: removeLastFavorite }
