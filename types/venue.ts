@@ -36,3 +36,17 @@ export type VenueModalProps = {
     text: string;
   };
 };
+
+
+// Favorite Card Component with Animation
+export type FavoriteCardProps = {
+  item: Venue;
+  index: number;
+  onRemove: (venueId: number, venueName: string) => void;
+  getSportColor: (sport: string) => {
+    bg: string;
+    border: string;
+    text: string;
+  };
+  isRemoving: boolean;
+};

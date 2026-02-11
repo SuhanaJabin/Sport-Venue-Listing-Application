@@ -16,7 +16,6 @@ import {
 const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_IMAGE_BASE_URL!;
 const SCREEN_HEIGHT = 800; // Approximate screen height for animation
 
-
 export const VenueModal = ({
   visible,
   venue,
@@ -222,29 +221,30 @@ export const VenueModal = ({
               {/* Pricing */}
               <View style={styles.modalPricingSection}>
                 <Text style={styles.modalSectionTitle}>Pricing</Text>
-                {Object.entries(venue.price).map(([sport, price], index) => (
-                  <View key={index} style={styles.priceRow}>
-                    <View
-                      style={[
-                        styles.priceSportBadge,
-                        {
-                          backgroundColor: getSportColor(sport).bg,
-                          borderColor: getSportColor(sport).border,
-                        },
-                      ]}
-                    >
-                      <Text
+                {venue.price &&
+                  Object.entries(venue.price).map(([sport, price], index) => (
+                    <View key={index} style={styles.priceRow}>
+                      <View
                         style={[
-                          styles.priceSportText,
-                          { color: getSportColor(sport).text },
+                          styles.priceSportBadge,
+                          {
+                            backgroundColor: getSportColor(sport).bg,
+                            borderColor: getSportColor(sport).border,
+                          },
                         ]}
                       >
-                        {sport}
-                      </Text>
+                        <Text
+                          style={[
+                            styles.priceSportText,
+                            { color: getSportColor(sport).text },
+                          ]}
+                        >
+                          {sport}
+                        </Text>
+                      </View>
+                      <Text style={styles.priceAmount}>₹{price}</Text>
                     </View>
-                    <Text style={styles.priceAmount}>₹{price}</Text>
-                  </View>
-                ))}
+                  ))}
               </View>
             </View>
           </ScrollView>
@@ -254,10 +254,8 @@ export const VenueModal = ({
   );
 };
 
-
 const styles = StyleSheet.create({
-
-      modalOverlay: {
+  modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
   },

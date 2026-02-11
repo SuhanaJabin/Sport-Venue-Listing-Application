@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,24 +6,20 @@ import {
   StyleSheet,
   ActivityIndicator,
   StatusBar,
-  TouchableOpacity,
   Platform,
-  TextInput,
-  Animated,
-  Dimensions,
 } from "react-native";
-import { VenueCard } from "../components/VenueCard";
-import * as SecureStore from "expo-secure-store";
+import { VenueCard } from "../../components/VenueCard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import { Venue  } from "../types/venue";
-import { VenueModal } from "../components/VenueModal";
-import { getSportColor } from "../constants/sportColors";
-const API_URL = process.env.EXPO_PUBLIC_API_URL!;
-const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_IMAGE_BASE_URL!;
+import { Venue } from "../../types/venue";
+import { VenueModal } from "../../components/VenueModal";
+import { Header } from "../../components/Header";
+import { getSportColor } from "../../constants/sportColors";
+import { useHeaderAnimation } from "../../hooks/useHeaderAnimation";
+import { useFavoritesManager } from "../../hooks/useFavoritesManager";
+import { quickSort, filterVenues } from "../../utils/venueSearch";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-const FAVORITES_KEY = "favorites";
+const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 export default function HomeScreen() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]);
@@ -35,8 +31,9 @@ export default function HomeScreen() {
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const headerFadeAnim = useRef(new Animated.Value(0)).current;
-  const headerSlideAnim = useRef(new Animated.Value(-50)).current;
+  const { fadeAnim, slideAnim } = useHeaderAnimation();
+  const { loadFavorites, saveFavorites, toggleFavorite, isFavorite } =
+    useFavoritesManager();
 
   // Refresh favorites when screen comes into focus
   useFocusEffect(
@@ -48,21 +45,6 @@ export default function HomeScreen() {
   useEffect(() => {
     fetchVenues();
     loadFavorites();
-
-    // Animate header on mount
-    Animated.parallel([
-      Animated.timing(headerFadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.spring(headerSlideAnim, {
-        toValue: 0,
-        friction: 8,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-    ]).start();
   }, []);
 
   const fetchVenues = async () => {
@@ -78,45 +60,9 @@ export default function HomeScreen() {
     }
   };
 
-  // Load favorites from AsyncStorage
-  const loadFavorites = async () => {
-    try {
-      const value = await SecureStore.getItemAsync(FAVORITES_KEY);
-      const parsed = value ? JSON.parse(value) : [];
-      setFavorites(parsed);
-    } catch (error) {
-      console.log("Failed to load favorites", error);
-    }
-  };
-
-  // Save favorites to AsyncStorage
-  const saveFavorites = async (data: number[]) => {
-    try {
-      await SecureStore.setItemAsync(FAVORITES_KEY, JSON.stringify(data));
-    } catch (error) {
-      console.log("Failed to save favorites", error);
-    }
-  };
-
-  // Toggle favorite status
-  const toggleFavorite = (venueId: number) => {
-    let updatedFavorites: number[];
-
-    if (favorites.includes(venueId)) {
-      // Remove from favorites
-      updatedFavorites = favorites.filter((id) => id !== venueId);
-    } else {
-      // Add to favorites
-      updatedFavorites = [...favorites, venueId];
-    }
-
-    setFavorites(updatedFavorites);
-    saveFavorites(updatedFavorites);
-  };
-
-  // Check if venue is favorite
-  const isFavorite = (venueId: number) => {
-    return favorites.includes(venueId);
+  const loadFavoritesData = async () => {
+    const loaded = await loadFavorites();
+    setFavorites(loaded);
   };
 
   // Open venue details modal
@@ -128,7 +74,6 @@ export default function HomeScreen() {
   // Close venue details modal
   const closeVenueDetails = () => {
     setModalVisible(false);
-    // Clear selected venue after animation completes
     setTimeout(() => setSelectedVenue(null), 350);
   };
 
@@ -222,66 +167,18 @@ export default function HomeScreen() {
     return "↓";
   };
 
-
-
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
-        {/* Header with Gradient */}
-        <Animated.View
-          style={[
-            styles.headerWrapper,
-            {
-              opacity: headerFadeAnim,
-              transform: [{ translateY: headerSlideAnim }],
-            },
-          ]}
-        >
-          <View style={styles.gradientHeader}>
-            <Text style={styles.emoji}>⚽🏏🏀</Text>
-            <Text style={styles.title}>Nearby Sports Venues</Text>
-            <Text style={styles.subtitle}>Find the perfect place to play</Text>
-
-            {/* Search Bar and Sort Button Row */}
-            <View style={styles.controlsRow}>
-              {/* Search Bar */}
-              <View style={styles.searchContainer}>
-                <Text style={styles.searchIcon}>🔍</Text>
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search venues or sports..."
-                  placeholderTextColor="#94A3B8"
-                  value={searchQuery}
-                  onChangeText={handleSearch}
-                />
-                {searching ? (
-                  <ActivityIndicator
-                    size="small"
-                    color="#3B82F6"
-                    style={styles.searchLoader}
-                  />
-                ) : searchQuery.length > 0 ? (
-                  <TouchableOpacity
-                    onPress={() => handleSearch("")}
-                    style={styles.clearButton}
-                  >
-                    <Text style={styles.clearButtonText}>✕</Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-
-              {/* Sort Button */}
-              <TouchableOpacity
-                style={styles.sortButton}
-                onPress={handleSort}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.sortButtonText}>{getSortButtonIcon()}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Animated.View>
+        <Header
+          title="Venue Finder"
+          subtitle="Sport venues, mapped for you"
+          emoji="⚽🏏🏀"
+          headerColor="#1E40AF"
+          fadeAnim={fadeAnim}
+          slideAnim={slideAnim}
+        />
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#3B82F6" />
           <Text style={styles.loadingText}>Loading venues...</Text>
@@ -293,63 +190,23 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor="#1E40AF" />
+      <Header
+        title="Venue Finder"
+        subtitle="Sport venues, mapped for you"
+        emoji="⚽🏏🏀"
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+        searching={searching}
+        onClearSearch={() => handleSearch("")}
+        sortOrder={sortOrder}
+        onSort={handleSort}
+        showSort={true}
+        showSearchBar={true}
+        headerColor="#1E40AF"
+        fadeAnim={fadeAnim}
+        slideAnim={slideAnim}
+      />
 
-      {/* Header with Gradient */}
-      <Animated.View
-        style={[
-          styles.headerWrapper,
-          {
-            opacity: headerFadeAnim,
-            transform: [{ translateY: headerSlideAnim }],
-          },
-        ]}
-      >
-        <View style={styles.gradientHeader}>
-          <Text style={styles.emoji}>⚽🏏🏀</Text>
-          <Text style={styles.title}>Nearby Sports Venues</Text>
-          <Text style={styles.subtitle}>Find the perfect place to play</Text>
-
-          {/* Search Bar and Sort Button Row */}
-          <View style={styles.controlsRow}>
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-              <Text style={styles.searchIcon}>🔍</Text>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search venues or sports..."
-                placeholderTextColor="#94A3B8"
-                value={searchQuery}
-                onChangeText={handleSearch}
-              />
-              {searching ? (
-                <ActivityIndicator
-                  size="small"
-                  color="#3B82F6"
-                  style={styles.searchLoader}
-                />
-              ) : searchQuery.length > 0 ? (
-                <TouchableOpacity
-                  onPress={() => handleSearch("")}
-                  style={styles.clearButton}
-                >
-                  <Text style={styles.clearButtonText}>✕</Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-
-            {/* Sort Button */}
-            <TouchableOpacity
-              style={styles.sortButton}
-              onPress={handleSort}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.sortButtonText}>{getSortButtonIcon()}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Animated.View>
-
-      {/* Venue List */}
       <View style={styles.contentWrapper}>
         <FlatList
           data={filteredVenues}
@@ -368,8 +225,12 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <VenueCard
               item={item}
-              isFavorite={isFavorite(item.id)}
-              onToggleFavorite={toggleFavorite}
+              isFavorite={isFavorite(item.id, favorites)}
+              onToggleFavorite={() => {
+                const updated = toggleFavorite(item.id, favorites);
+                setFavorites(updated);
+                saveFavorites(updated);
+              }}
               onPress={openVenueDetails}
               getSportColor={getSportColor}
             />
@@ -377,13 +238,20 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* Venue Detail Modal */}
       <VenueModal
         visible={modalVisible}
         venue={selectedVenue}
         onClose={closeVenueDetails}
-        isFavorite={selectedVenue ? isFavorite(selectedVenue.id) : false}
-        onToggleFavorite={toggleFavorite}
+        isFavorite={
+          selectedVenue ? isFavorite(selectedVenue.id, favorites) : false
+        }
+        onToggleFavorite={() => {
+          if (selectedVenue) {
+            const updated = toggleFavorite(selectedVenue.id, favorites);
+            setFavorites(updated);
+            saveFavorites(updated);
+          }
+        }}
         getSportColor={getSportColor}
       />
     </SafeAreaView>
@@ -398,112 +266,6 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     backgroundColor: "#F0F4F8",
-  },
-  headerWrapper: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  gradientHeader: {
-    backgroundColor: "#1E40AF",
-    paddingHorizontal: 24,
-    paddingTop: 80,
-    paddingBottom: 60,
-    alignItems: "center",
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  emoji: {
-    fontSize: 32,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    textAlign: "center",
-    letterSpacing: 0.5,
-    fontFamily: Platform.OS === "ios" ? "Avenir-Heavy" : "sans-serif-medium",
-    textShadowColor: "rgba(0, 0, 0, 0.2)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#BFDBFE",
-    marginTop: 8,
-    textAlign: "center",
-    letterSpacing: 0.5,
-    fontWeight: "400",
-    fontFamily: Platform.OS === "ios" ? "Avenir" : "sans-serif",
-  },
-  controlsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 16,
-    marginHorizontal: 20,
-    gap: 10,
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 2,
-    borderColor: "#E0E7FF",
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: "#1E293B",
-    fontFamily: Platform.OS === "ios" ? "Avenir" : "sans-serif",
-    padding: 0,
-  },
-  searchLoader: {
-    marginLeft: 8,
-  },
-  clearButton: {
-    padding: 4,
-    marginLeft: 4,
-  },
-  clearButtonText: {
-    fontSize: 16,
-    color: "#64748B",
-    fontWeight: "700",
-  },
-  sortButton: {
-    backgroundColor: "#FFFFFF",
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: "#3B82F6",
-  },
-  sortButtonText: {
-    color: "#1E40AF",
-    fontSize: 22,
-    fontWeight: "700",
   },
   emptyContainer: {
     alignItems: "center",
@@ -532,7 +294,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
- 
   center: {
     flex: 1,
     justifyContent: "center",
@@ -544,25 +305,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     fontFamily: Platform.OS === "ios" ? "Avenir" : "sans-serif",
-  },
-
-
-  bookButton: {
-    backgroundColor: "#1E40AF",
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: "center",
-    shadowColor: "#1E40AF",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  bookButtonText: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    fontFamily: Platform.OS === "ios" ? "Avenir-Heavy" : "sans-serif-medium",
   },
 });
