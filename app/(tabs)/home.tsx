@@ -38,7 +38,11 @@ export default function HomeScreen() {
   // Refresh favourites when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      loadFavourites();
+      const refreshFavourites = async () => {
+        const loaded = await loadFavourites();
+        setFavourites(loaded);
+      };
+      refreshFavourites();
     }, []),
   );
 
